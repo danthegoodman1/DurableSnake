@@ -1,0 +1,8 @@
+[project]
+name = "DurableSnake"
+dynamic = ["version"]
+
+dependencies = [
+
+]
+
