@@ -1,6 +1,6 @@
 [project]
 name = "DurableSnake"
-dynamic = ["version"]
+dynamic = ["version"] # defaults to most recent git tag
 
 dependencies = [
 
