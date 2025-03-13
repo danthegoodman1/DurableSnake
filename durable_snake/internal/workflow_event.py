@@ -11,7 +11,6 @@ class WorkflowEventType(Enum):
     WORKFLOW_CANCELED = "workflow_canceled"
 
     CHILD_WORKFLOW_SCHEDULED = "child_workflow_scheduled"
-    CHILD_WORKFLOW_CANCELLATION_REQUESTED = "child_workflow_cancellation_requested"
     CHILD_WORKFLOW_COMPLETED = "child_workflow_completed"
     CHILD_WORKFLOW_FAILED = "child_workflow_failed"
 
