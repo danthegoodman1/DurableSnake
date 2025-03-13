@@ -54,7 +54,12 @@ class BaseBackend:
         """
         raise NotImplementedError
 
-    async def acquire_workflow_lock(self, workflow_id: str, runner_id: str, expire_at_ns: int) -> WorkflowLock | None:
+    async def acquire_workflow_lock(
+            self,
+            workflow_id: str,
+            runner_id: str,
+            expire_at_ns: int
+    ) -> WorkflowLock | None:
         """
         Acquires a lock on a workflow if the lock doesn't exist, or is expired.
         Must do so with serializable consistency.
@@ -70,7 +75,11 @@ class BaseBackend:
         """
         raise NotImplementedError
 
-    async def extend_workflow_lock(self, lock: WorkflowLock, expire_at_ns: int) -> WorkflowLock:
+    async def extend_workflow_lock(
+            self,
+            lock: WorkflowLock,
+            expire_at_ns: int
+    ) -> WorkflowLock:
         """
         Extends a lock that has not yet expired with serializable consistency.
 
@@ -87,9 +96,22 @@ class BaseBackend:
         """
         raise NotImplementedError
 
-    async def insert_workflow_event(self, event: WorkflowEvent):
+    async def append_workflow_event_history(self, event: WorkflowEvent):
         """
-        Inserts a workflow event to the history
-        :param event:
-        :return:
+        Appends a workflow event to the history
+        :param event: The workflow event
         """
+        raise NotImplementedError
+
+    async def get_workflow_history(
+            self,
+            workflow_id: str,
+            after_seq: int = None
+    ) -> List[WorkflowEvent]:
+        """
+        Get a workflow's history in ascending sequence ID order
+        :param workflow_id: Workflow ID to get the history for
+        :param after_seq: If provided, only get the history after this sequence id
+        :return: List of workflow events
+        """
+        raise NotImplementedError
