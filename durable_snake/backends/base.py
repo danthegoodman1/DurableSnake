@@ -32,18 +32,19 @@ class BaseBackend:
         """
         Creates a workflow instance
 
-        :param id: Workflow ID. If provided, then it will serve as a unique ID that will be deduplicated against.
-        If not provided, then the workflow will generate its own ID
+        :param id: Unique workflow ID. If provided, then it will serve as a unique ID that will be
+        deduplicated against. If not provided, then the workflow ID will be generated.
         :param data: Data to pass into the workflow instance
 
         :returns: Workflow ID
         """
         raise NotImplementedError
 
-    async def get_workflow_instance(self) -> WorkflowInstance:
+    async def get_workflow_instance(self, workflow_id: str) -> WorkflowInstance:
         """
-        Gets a workflow instance from storage
+        Gets a workflow instance by ID.
 
+        :param workflow_id: Workflow ID
         :return: Workflow instance
         """
         raise NotImplementedError
