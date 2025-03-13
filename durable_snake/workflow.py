@@ -30,8 +30,10 @@ class WorkflowInstance(BaseModel):
     created_ns: int
     started_ns: int
     closed_ns: int
+    parent_id: str | None = None
+    data: dict | None = None
 
+    # Updatable fields
     history_length: int = 0
     history_bytes: int = 0
-    parent_id: str | None = None
 
