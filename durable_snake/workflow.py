@@ -7,6 +7,7 @@ class WorkflowStatus(Enum):
     CREATED = "created"
     RUNNING = "running"
 
+
 class WorkflowInstance(BaseModel):
     id: str
     status: WorkflowStatus
