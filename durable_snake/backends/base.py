@@ -1,6 +1,8 @@
 import contextvars
 from typing import List
 
+from ..internal.workflow_event import WorkflowEvent
+from ..internal.workflow_lock import WorkflowLock
 from ..workflow import WorkflowInstance
 
 backend_context = contextvars.ContextVar[dict | None]("backend", default=None)
@@ -8,10 +10,16 @@ backend_context = contextvars.ContextVar[dict | None]("backend", default=None)
 
 class BaseBackend:
     """
-    The base backend class
+    The base backend class. Implement this to make a backend.
     """
 
     def __init__(self):
+        pass
+
+    async def close(self):
+        """
+        When the backend is closed, so you can gracefully shut down
+        """
         pass
 
     async def create_workflow_instance(
@@ -24,20 +32,64 @@ class BaseBackend:
         """
         Creates a workflow instance
 
-        :arg id: Workflow ID. If provided, then it will serve as a unique ID that will be deduplicated against.
+        :param id: Workflow ID. If provided, then it will serve as a unique ID that will be deduplicated against.
         If not provided, then the workflow will generate its own ID
-        :arg data: Data to pass into the workflow instance
+        :param data: Data to pass into the workflow instance
 
         :returns: Workflow ID
         """
         raise NotImplementedError
 
-    async def get_workflow_instance(
-            self
-    ) -> WorkflowInstance:
+    async def get_workflow_instance(self) -> WorkflowInstance:
         """
         Gets a workflow instance from storage
 
         :return: Workflow instance
         """
         raise NotImplementedError
+
+    async def update_workflow_instance(self, instance: WorkflowInstance):
+        """
+        Updates a workflow instance
+        """
+        raise NotImplementedError
+
+    async def acquire_workflow_lock(self, workflow_id: str, runner_id: str, expire_at_ns: int) -> WorkflowLock | None:
+        """
+        Acquires a lock on a workflow if the lock doesn't exist, or is expired.
+        Must do so with serializable consistency.
+
+        If the lock exists and is expired, then the epoch must be incremented and the runner_id updated.
+
+        Must return None if the lock was unable to be acquired due to a concurrent lock acquisition.
+
+        :param workflow_id: Workflow ID
+        :param runner_id: Runner ID
+        :param expire_at_ns: Lock expiry time in nanoseconds
+        :returns: A workflow lock
+        """
+        raise NotImplementedError
+
+    async def extend_workflow_lock(self, lock: WorkflowLock, expire_at_ns: int) -> WorkflowLock:
+        """
+        Extends a lock that has not yet expired with serializable consistency.
+
+        It must only be permitted to do so if:
+            1. The runner_id is the same as the currently stored lock
+            2. The epoch is the same
+            3. The lock is not expired
+
+        When the lock is extended, the epoch must be incremented by one, and the
+
+        :param lock: Lock that is currently held by this runner
+        :param expire_at_ns: The new lock expiry time in nanoseconds
+        :return: The updated workflow lock
+        """
+        raise NotImplementedError
+
+    async def insert_workflow_event(self, event: WorkflowEvent):
+        """
+        Inserts a workflow event to the history
+        :param event:
+        :return:
+        """
