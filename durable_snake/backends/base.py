@@ -25,14 +25,14 @@ class BaseBackend:
     async def create_workflow_instance(
             self,
             *args,
-            id: str | None = None,
+            workflow_id: str | None = None,
             data: dict | List | None = None,
             **kwargs,
     ) -> str:
         """
         Creates a workflow instance
 
-        :param id: Unique workflow ID. If provided, then it will serve as a unique ID that will be
+        :param workflow_id: Unique workflow ID. If provided, then it will serve as a unique ID that will be
         deduplicated against. If not provided, then the workflow ID will be generated.
         :param data: Data to pass into the workflow instance
 
