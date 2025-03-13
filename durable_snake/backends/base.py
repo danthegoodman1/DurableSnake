@@ -53,13 +53,13 @@ class BaseBackend:
         """
         raise NotImplementedError
 
-    async def take_workflow_lock(
+    async def acquire_extend_workflow_lock(
             self,
             new_lock: WorkflowLock,
             old_lock: WorkflowLock = None,
     ) -> WorkflowLock:
         """
-        Acquires or extends a lock with serializable consistency.
+        Acquires or extends a workflow lock.
         If the old lock exists, the old_lock must exactly match what exists in the backend.
 
         :param new_lock: The new instance of the lock that will replace the old lock in the backend if able to
