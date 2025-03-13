@@ -37,3 +37,5 @@ class WorkflowEvent(BaseModel):
     sequence_id: int
     """Monotonically increasing sequence number"""
     type: WorkflowEventType
+    runner_id: str
+    created_at_ns: int

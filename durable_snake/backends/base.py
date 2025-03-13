@@ -96,6 +96,15 @@ class BaseBackend:
         """
         raise NotImplementedError
 
+    async def list_expired_locks(self) -> List[WorkflowLock]:
+        """
+        List workflow locks that have been expired that this runner can attempt to acquire.
+        You should probably have some limit of how many locks you return, and maybe sort by how
+        long the lock has been expired for (so you recover the oldest locks first).
+        :return: List of expired locks
+        """
+        raise NotImplementedError
+
     async def append_workflow_event_history(self, event: WorkflowEvent):
         """
         Appends a workflow event to the history
