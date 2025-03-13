@@ -25,6 +25,8 @@ class WorkflowEventType(Enum):
 
     SIGNAL_RECEIVED = "signal_received"
 
+    WORKFLOW_VERSION = "workflow_version"
+
     SIDE_EFFECT_RESULT = "side_effect_result"
 
 
