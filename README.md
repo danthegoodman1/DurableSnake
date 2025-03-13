@@ -4,6 +4,7 @@ Python durable execution engine with a pluggable backend.
 
 <!-- TOC -->
 * [Durable Snake](#durable-snake)
+  * [Installing](#installing)
   * [Developing](#developing)
 <!-- TOC -->
 

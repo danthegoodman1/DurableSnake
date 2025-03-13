@@ -3,6 +3,8 @@ name = "DurableSnake"
 dynamic = ["version"] # defaults to most recent git tag
 
 dependencies = [
-
+    "pydantic>=2.10.6",
+    "pydantic_core>=2.27.2",
+    "typing_extensions>=4.12.2",
 ]
 
