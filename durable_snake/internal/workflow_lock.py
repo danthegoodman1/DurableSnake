@@ -11,7 +11,7 @@ class WorkflowLock(BaseModel):
     An monotonically incrementing integer that serves as a fencing token for lock extensions and
     history insertions
     """
-    held_until_ns: int
+    expires_at_ns: int
     """When the lock expires in epoch nanoseconds"""
     runner_id: str
     """The ID of the runner that most recently acquired the lock"""
