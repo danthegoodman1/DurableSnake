@@ -44,9 +44,12 @@ class BaseBackend:
         """
         raise NotImplementedError
 
-    async def update_workflow_instance(self, instance: WorkflowInstance):
+    async def update_workflow_instance(self, instance: WorkflowInstance, lock: WorkflowLock):
         """
         Updates a workflow instance by ID
+
+        :param instance: The workflow instance to update by ID
+        :param lock: The currently held workflow lock you can use as a fencing token
         """
         raise NotImplementedError
 
