@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class WorkflowStatus(Enum):
     # Open workflows
-    CREATED = "created"
+    PENDING = "pending"
     RUNNING = "running"
 
     # Closed workflows

@@ -25,13 +25,23 @@ class BaseBackend:
 
     async def create_workflow_instance(
             self,
-            workflow: WorkflowInstance
+            workflow: WorkflowInstance,
     ) -> str:
         """
-        Creates a new workflow instance
+        Creates a new workflow instance.
+
+        TODO: add optimization for poking a worker instead of waiting for a list_pending_workflows
 
         :param workflow: A workflow that should be inserted if it does not exist (by ID).
         :returns: Workflow ID
+        """
+        raise NotImplementedError
+
+    async def list_pending_workflows(self, queue: str) -> List[WorkflowInstance]:
+        """
+        Lists workflows that are pending to be picked up by a runner.
+        You will likely want to return them in descending order by creation time, and have some limit.
+        :return: List of workflows.
         """
         raise NotImplementedError
 
@@ -44,7 +54,11 @@ class BaseBackend:
         """
         raise NotImplementedError
 
-    async def update_workflow_instance(self, instance: WorkflowInstance, lock: WorkflowLock):
+    async def update_workflow_instance(
+            self,
+            instance: WorkflowInstance,
+            lock: WorkflowLock
+    ):
         """
         Updates a workflow instance by ID
 
