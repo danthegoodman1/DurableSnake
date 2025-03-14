@@ -14,10 +14,10 @@ class WorkflowEventType(Enum):
     CHILD_WORKFLOW_COMPLETED = "child_workflow_completed"
     CHILD_WORKFLOW_FAILED = "child_workflow_failed"
 
-    ACTIVITY_STARTED = "activity_started"
-    ACTIVITY_COMPLETED = "activity_completed"
-    ACTIVITY_FAILED = "activity_failed"
-    ACTIVITY_TIMED_OUT = "activity_timed_out"
+    TASK_STARTED = "task_started"
+    TASK_COMPLETED = "task_completed"
+    TASK_FAILED = "task_failed"
+    TASK_TIMED_OUT = "task_timed_out"
 
     TIMER_SCHEDULED = "timer_scheduled"
     TIMER_FIRED = "timer_fired"
