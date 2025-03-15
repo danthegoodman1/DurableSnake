@@ -1,13 +1,10 @@
-import contextvars
 from enum import Enum
 from pydantic import BaseModel
 import functools
 from typing import Callable, TypeVar, Any, Awaitable, cast
 
+from .internal.contexts import _workflow_execution_context
 
-# TODO: update the type
-workflow_execution_context = contextvars.ContextVar[dict | None]("workflow_execution", default=None)
-task_execution_context = contextvars.ContextVar[dict | None]("task_execution", default=None)
 
 class WorkflowStatus(Enum):
     # Open workflows
@@ -108,7 +105,7 @@ def activity(var_name: str | None = None):
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             print("params", *args, **kwargs)
-            print("workflow context", workflow_execution_context.get())
+            print("workflow context", _workflow_execution_context.get())
             result = await func(*args, **kwargs)
             print("result", result)
             return result

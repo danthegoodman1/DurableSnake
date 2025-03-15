@@ -70,7 +70,7 @@ class BaseBackend:
     async def acquire_extend_workflow_lock(
             self,
             new_lock: WorkflowLock,
-            old_lock: WorkflowLock = None,
+            old_lock: WorkflowLock | None = None,
     ) -> WorkflowLock:
         """
         Acquires or extends a workflow lock.
@@ -82,6 +82,7 @@ class BaseBackend:
         exists, otherwise this is a new insert.
         :return: The updated workflow lock
         """
+        """TODO: Issue with this being very chatty for high workflow counts. Maybe we can link workflws to runners, and runners can monitor each other to check for whether they should take over the workflow. Then totally remove locks, and can use the top workflow step number as a fencing token."""
         raise NotImplementedError
 
     async def list_expired_locks(self) -> List[WorkflowLock]:
@@ -93,7 +94,15 @@ class BaseBackend:
         :return: List of expired locks
         """
         raise NotImplementedError
+    
+    async def list_locks_held_by_runner(self, runner_id: str) -> List[WorkflowLock]:
+        """
+        List workflow locks that are held by a runner
 
+        :param runner_id: Runner ID
+        :return: List of locks
+        """
+        raise NotImplementedError
     async def insert_workflow_event_history(
             self,
             event: WorkflowEvent,
@@ -111,7 +120,7 @@ class BaseBackend:
     async def get_workflow_history(
             self,
             workflow_id: str,
-            after_seq: int = None
+            after_seq: int | None = None
     ) -> List[WorkflowEvent]:
         """
         Get a workflow's history in ascending sequence ID order
