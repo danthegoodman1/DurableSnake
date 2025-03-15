@@ -2,7 +2,7 @@ import contextvars
 from enum import Enum
 from pydantic import BaseModel
 import functools
-from typing import Callable, TypeVar, Any, Awaitable
+from typing import Callable, TypeVar, Any, Awaitable, cast
 
 
 # TODO: update the type
@@ -64,7 +64,7 @@ def workflow(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
 F = TypeVar('F', bound=Callable)
 
 
-def activity(var_name: str = None):
+def activity(var_name: str | None = None):
     """
     Decorate a function to be a workflow activity.
 
@@ -118,6 +118,6 @@ def activity(var_name: str = None):
         #     return cast(F, async_wrapper)
         # else:
         #     return cast(F, sync_wrapper)
-        return async_wrapper
+        return cast(F, async_wrapper)
 
     return decorator
