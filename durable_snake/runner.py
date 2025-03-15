@@ -1,6 +1,9 @@
+import asyncio
 from dataclasses import dataclass
 from loguru import logger
 from time import perf_counter_ns
+
+from durable_snake.internal.workflow_lock import WorkflowLock
 
 from .backends import BaseBackend
 from .workflow import WorkflowInstance
@@ -21,13 +24,17 @@ class RunnerOptions:
     """How long to hold a workflow lock before attempting to extend it. The runner will attempt to extend the lock
     if it is within 1/2 of the expiration time."""
 
+@dataclass
+class _RunnerWorkflow:
+    workflow: WorkflowInstance
+    lock: WorkflowLock
+
 class Runner:
     """
     The workflow runner.
     """
 
-    _workflows = {}
-    _workflow_locks = {}
+    _workflows: dict[str, _RunnerWorkflow] = {}
 
     def __init__(self, options: RunnerOptions):
         self._options = options
@@ -44,7 +51,13 @@ class Runner:
         for lock in held_locks:
             logger.trace("Attempting to extend lock {}", lock)
             new_lock = lock.model_copy(update={"expires_at_ns": perf_counter_ns() + time_helpers.second})
-            await self._options.backend.acquire_extend_workflow_lock(new_lock, lock)
+            updated_lock = await self._options.backend.acquire_extend_workflow_lock(new_lock, lock)
+            if updated_lock is not None:
+                # Get the workflow
+                workflow = await self._options.backend.get_workflow_instance(updated_lock.workflow_id)
+                self._workflows[updated_lock.workflow_id] = _RunnerWorkflow(workflow=workflow, lock=updated_lock)
+                asyncio.create_task(self._workflow_loop(workflow))
+
         # TODO: for each lock extended, pull the workflow and launch a loop
 
 

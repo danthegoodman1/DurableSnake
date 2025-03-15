@@ -71,7 +71,7 @@ class BaseBackend:
             self,
             new_lock: WorkflowLock,
             old_lock: WorkflowLock | None = None,
-    ) -> WorkflowLock:
+    ) -> WorkflowLock | None:
         """
         Acquires or extends a workflow lock.
         If the old lock exists, the old_lock must exactly match what exists in the backend.
@@ -80,7 +80,7 @@ class BaseBackend:
         successfully extend
         :param old_lock: Lock that is believed to be held by this runner, all information should match if
         exists, otherwise this is a new insert.
-        :return: The updated workflow lock
+        :return: The updated workflow lock, none if the lock was not acquired or extended
         """
         """TODO: Issue with this being very chatty for high workflow counts. Maybe we can link workflws to runners, and runners can monitor each other to check for whether they should take over the workflow. Then totally remove locks, and can use the top workflow step number as a fencing token."""
         raise NotImplementedError
