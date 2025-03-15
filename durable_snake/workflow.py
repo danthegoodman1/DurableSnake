@@ -7,7 +7,7 @@ from typing import Callable, TypeVar, Any, Awaitable
 
 # TODO: update the type
 workflow_execution_context = contextvars.ContextVar[dict | None]("workflow_execution", default=None)
-task_execution_context = contextvars.ContextVar[dict | None]("workflow_execution", default=None)
+task_execution_context = contextvars.ContextVar[dict | None]("task_execution", default=None)
 
 class WorkflowStatus(Enum):
     # Open workflows
