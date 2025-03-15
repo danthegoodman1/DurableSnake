@@ -15,3 +15,4 @@ async def fake_workflow():
 asyncio.run(thing("before"))
 asyncio.run(fake_workflow())
 asyncio.run(thing("after"))
+c
