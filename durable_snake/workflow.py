@@ -42,24 +42,6 @@ class WorkflowInstance(BaseModel):
     history_bytes: int = 0
 
 
-T = TypeVar("T")
-
-
-def workflow(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
-    @functools.wraps(func)
-    async def wrapper(*args: Any, **kwargs: Any) -> T:
-        print("Before function execution")
-
-        # Call the original async function
-        result = await func(*args, **kwargs)
-
-        print("After function execution")
-
-        return result
-
-    return wrapper
-
-
 F = TypeVar("F", bound=Callable)
 
 
@@ -113,5 +95,70 @@ def activity(var_name: str | None = None):
             return cast(F, async_wrapper)
         else:
             return cast(F, sync_wrapper)
+
+    return decorator
+
+
+T = TypeVar("T", bound=Callable)
+
+
+def workflow(athing: str | None = None):
+    """
+    Decorate a function to be a workflow activity.
+
+    Usage:
+        @activity("request_id")
+        async def process_request(request_id):
+            # Access via context_var attribute on the function
+            current_id = process_request.context_var.get()
+            ...
+
+        # Or with a value
+        @activity("user", default="anonymous")
+        def perform_operation():
+            current_user = perform_operation.context_var.get()
+            ...
+    """
+
+    def decorator(func: T) -> T:
+        is_async = inspect.iscoroutinefunction(func)
+
+        class CallableActivity:
+            # Copy function metadata
+            __name__ = func.__name__
+            __doc__ = func.__doc__
+            __module__ = func.__module__
+            __qualname__ = func.__qualname__
+            __annotations__ = func.__annotations__
+
+            def __call__(self, *args, **kwargs):
+                print("params", *args, **kwargs)
+                print("workflow context", _workflow_execution_context.get())
+
+                if is_async:
+                    # For async functions, return a coroutine
+                    async def async_execution():
+                        result = await func(*args, **kwargs)
+                        print("result", result)
+                        return result
+
+                    return async_execution()
+                else:
+                    # For sync functions, execute directly
+                    result = func(*args, **kwargs)
+                    print("result", result)
+                    return result
+
+            # Add any additional methods here
+            def get_athing(self):
+                return athing
+
+            # Add any other properties or methods
+
+        # Create an instance and make it look like the original function
+        callable_instance = CallableActivity()
+        functools.update_wrapper(callable_instance, func)
+
+        return cast(T, callable_instance)
 
     return decorator

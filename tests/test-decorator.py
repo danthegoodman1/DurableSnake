@@ -16,4 +16,6 @@ def test_decorator_sync():
 
 asyncio.run(test_decorator())
 print()
+print(test_decorator.get_athing())
+print()
 test_decorator_sync()
