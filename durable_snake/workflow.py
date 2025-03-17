@@ -1,4 +1,5 @@
 from enum import Enum
+import inspect
 from pydantic import BaseModel
 import functools
 from typing import Callable, TypeVar, Any, Awaitable, cast
@@ -41,7 +42,8 @@ class WorkflowInstance(BaseModel):
     history_bytes: int = 0
 
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def workflow(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
     @functools.wraps(func)
@@ -58,7 +60,7 @@ def workflow(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
     return wrapper
 
 
-F = TypeVar('F', bound=Callable)
+F = TypeVar("F", bound=Callable)
 
 
 def activity(var_name: str | None = None):
@@ -90,17 +92,13 @@ def activity(var_name: str | None = None):
         # # Attach the context variable to the function for easy access
         # setattr(func, 'context_var', context_var)
 
-        # @functools.wraps(func)
-        # def sync_wrapper(*args, **kwargs):
-        #     # For the first arg, use it to set the context if the name matches
-        #     if args and var_name in func.__code__.co_varnames:
-        #         token = context_var.set(args[0])
-        #         try:
-        #             return func(*args, **kwargs)
-        #         finally:
-        #             context_var.reset(token)
-        #     else:
-        #         return func(*args, **kwargs)
+        @functools.wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            print("params", *args, **kwargs)
+            print("workflow context", _workflow_execution_context.get())
+            result = func(*args, **kwargs)
+            print("result", result)
+            return result
 
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -111,10 +109,9 @@ def activity(var_name: str | None = None):
             return result
 
         # Choose the appropriate wrapper based on whether the function is a coroutine
-        # if inspect.iscoroutinefunction(func):
-        #     return cast(F, async_wrapper)
-        # else:
-        #     return cast(F, sync_wrapper)
-        return cast(F, async_wrapper)
+        if inspect.iscoroutinefunction(func):
+            return cast(F, async_wrapper)
+        else:
+            return cast(F, sync_wrapper)
 
     return decorator
