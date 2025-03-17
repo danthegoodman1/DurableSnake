@@ -1,5 +1,5 @@
 import asyncio
-from durable_snake.workflow import activity
+from durable_snake.workflow import activity, workflow
 
 
 @activity("im asycj")
@@ -8,7 +8,7 @@ async def test_decorator():
     return "async"
 
 
-@activity("im sync")
+@workflow("im sync")
 def test_decorator_sync():
     print("im sync")
     return "sync"
@@ -16,6 +16,6 @@ def test_decorator_sync():
 
 asyncio.run(test_decorator())
 print()
-print(test_decorator.get_athing())
+print(test_decorator_sync.get_athing())
 print()
 test_decorator_sync()

@@ -2,7 +2,7 @@ from enum import Enum
 import inspect
 from pydantic import BaseModel
 import functools
-from typing import Callable, TypeVar, Any, Awaitable, cast
+from typing import Callable, TypeVar, cast
 
 from .internal.contexts import _workflow_execution_context
 
@@ -157,7 +157,6 @@ def workflow(athing: str | None = None):
 
         # Create an instance and make it look like the original function
         callable_instance = CallableActivity()
-        functools.update_wrapper(callable_instance, func)
 
         return cast(T, callable_instance)
 
