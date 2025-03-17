@@ -62,6 +62,7 @@ def activity(var_name: str | None = None):
             current_user = perform_operation.context_var.get()
             ...
     """
+    print("activity decorator")
 
     def decorator(func: F) -> F:
         nonlocal var_name
@@ -119,6 +120,7 @@ def workflow(athing: str | None = None):
             current_user = perform_operation.context_var.get()
             ...
     """
+    print("workflow decorator")
 
     def decorator(func: T) -> T:
         is_async = inspect.iscoroutinefunction(func)
