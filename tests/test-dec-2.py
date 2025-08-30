@@ -31,6 +31,19 @@ def durable(fn: Callable[P, R]) -> Callable[P, R]:
     return wrapper
 
 
+def durably(fn: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> R:
+    """Execute a function in durable context without decorating it."""
+    token = execution_context.set("durable")
+    try:
+        print(
+            f"  [Context: {execution_context.get()}] Executing {fn.__name__} via durably()"
+        )
+        result = fn(*args, **kwargs)
+        return result
+    finally:
+        execution_context.reset(token)
+
+
 # Example:
 @durable
 def add_one(a: int) -> int:
@@ -61,3 +74,16 @@ def add_two(a: int) -> int:
 print("\n=== Testing non-decorated function ===")
 print(f"add_two(2): {add_two(2)}")
 print(f"Current context after call: {execution_context.get()}")
+
+
+# Test durably() function
+def add_three(a: int, override: int = 3) -> int:
+    """adds override value (default 3)"""
+    print(f"  [Context: {execution_context.get()}] Inside add_three")
+    return a + override
+
+
+print("\n=== Testing durably() function ===")
+result = durably(add_three, 2, override=5)
+print(f"Result: {result}")
+print(f"Current context after durably() call: {execution_context.get()}")
