@@ -43,7 +43,7 @@ print("\n=== Testing decorated function ===")
 result = add_one(2)
 print(f"Result: {result}")
 print(f"__doc__: {add_one.__doc__}")
-print(f"__qualname__: {add_one.__qualname__}")
+print(f"__name__: {add_one.__name__}")
 sig = inspect.signature(add_one)
 print(f"signature: {sig}")
 for name, param in sig.parameters.items():
