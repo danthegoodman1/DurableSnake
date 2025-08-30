@@ -1,35 +1,34 @@
 from __future__ import annotations
-from typing import Callable, Protocol, TypeVar, ParamSpec, cast, Any
+from typing import Callable, TypeVar, ParamSpec, cast, Any
 from functools import wraps
 import inspect
+from contextvars import ContextVar
 
 P = ParamSpec("P")
-R = TypeVar("R", covariant=True)
+R = TypeVar("R")
+
+# Context variable to track durable execution
+execution_context: ContextVar[str | None] = ContextVar(
+    "execution_context", default=None
+)
 
 
-class DurableFunc(Protocol[P, R]):
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R: ...
-    def durable(self, *args: P.args, **kwargs: P.kwargs) -> R: ...
-
-
-def durable(fn: Callable[P, R]) -> DurableFunc[P, R]:
+def durable(fn: Callable[P, R]) -> Callable[P, R]:
     sig = inspect.signature(fn)
 
     @wraps(fn)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        return fn(*args, **kwargs)
+        # Set context to indicate durable execution
+        token = execution_context.set("durable")
+        try:
+            print(f"  [Context: {execution_context.get()}] Executing {fn.__name__}")
+            result = fn(*args, **kwargs)
+            return result
+        finally:
+            execution_context.reset(token)
 
     cast(Any, wrapper).__signature__ = sig
-
-    @wraps(fn)
-    def run_durable(*args: P.args, **kwargs: P.kwargs) -> R:
-        # Insert durable-execution logic here; fallback to direct call
-        return fn(*args, **kwargs)
-
-    cast(Any, run_durable).__signature__ = sig
-
-    setattr(wrapper, "durable", run_durable)
-    return cast(DurableFunc[P, R], wrapper)
+    return wrapper
 
 
 # Example:
@@ -40,20 +39,25 @@ def add_one(a: int) -> int:
 
 
 # Test runtime preservation of metadata
-print("add_one(2):", add_one(2))
-print("  __doc__:", add_one.__doc__)
-print("  __qualname__:", add_one.__qualname__)
+print("\n=== Testing decorated function ===")
+result = add_one(2)
+print(f"Result: {result}")
+print(f"__doc__: {add_one.__doc__}")
+print(f"__qualname__: {add_one.__qualname__}")
 sig = inspect.signature(add_one)
-print("  signature:", sig)
+print(f"signature: {sig}")
 for name, param in sig.parameters.items():
-    print(f"    {name}: {param.annotation}")
-print(f"    return: {sig.return_annotation}")
+    print(f"  {name}: {param.annotation}")
+print(f"  return: {sig.return_annotation}")
 
-print("\nadd_one.durable(2):", add_one.durable(2))
-print("  __doc__:", add_one.durable.__doc__)
-print("  __qualname__:", add_one.durable.__qualname__)
-sig_durable = inspect.signature(add_one.durable)
-print("  signature:", sig_durable)
-for name, param in sig_durable.parameters.items():
-    print(f"    {name}: {param.annotation}")
-print(f"    return: {sig_durable.return_annotation}")
+
+# Test with non-decorated function for comparison
+def add_two(a: int) -> int:
+    """adds two"""
+    print(f"  [Context: {execution_context.get()}] Inside add_two")
+    return a + 2
+
+
+print("\n=== Testing non-decorated function ===")
+print(f"add_two(2): {add_two(2)}")
+print(f"Current context after call: {execution_context.get()}")
