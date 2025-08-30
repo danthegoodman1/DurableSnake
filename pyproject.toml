@@ -1,6 +1,6 @@
 [project]
 name = "DurableSnake"
-dynamic = ["version"] # defaults to most recent git tag
+version = "0.1.0"
 
 dependencies = [
     "pydantic>=2.10.6",
